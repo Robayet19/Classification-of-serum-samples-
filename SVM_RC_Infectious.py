@@ -10,17 +10,13 @@ import time
 tic = time.time()
 # set up the parameters
 sample_trainfraction = 0.2  # percent of samples to be used in training the model
-pep_num = 5  # number of peptides in training set
+pep_num = 5  # number of peptides in training set : default - 500
 num_rep = 1000  # number of iterations
 
 file1 = 'sequence_data_NIBIB_Dengue_ML_CTSSeraCare_noMed_CV317-Jul-2020-00-10.csv'
-# file1 = 'sequence_data_NIBIB_WNV_ML_mod_CV315-Jul-2020-23-57.csv';
-# file1 = 'sequence_data_NIBIB_HCV_ML_mod_CV317-Jul-2020-16-50.csv';
-# file1= 'sequence_data_NIBIB_HBV_ML_mod_CV316-Jul-2020-00-01.csv';
-# file1 = 'sequence_data_NIBIB_Chagas_ML_mod_CV316-Jul-2020-00-02.csv';
 file2 = 'sequence_data_NIBIB_Normal_ML_mod_CV315-Jul-2020-23-50.csv'
 
-# read the data and sequence for two cases or a case and the control
+# read the data and sequence for two cases, or a case and the control
 data_seq_1 = pd.read_csv(file1, header=None)
 sequence = data_seq_1.iloc[:, 1]
 total_seq = len(sequence)
@@ -42,7 +38,7 @@ for i in range(total_sample):
 data_1vs2_label_save = data_1vs2_label
 
 # shuffle the data and their labels
-ind_w_label = list(enumerate(data_1vs2_label))  # create indices for the labels and save them with labels
+ind_w_label = list(enumerate(data_1vs2_label))  # create indices for the labels and store them with labels
 np.random.shuffle(ind_w_label)  # shuffle the labels along with their indices
 raw_indices, data_1vs2_label = zip(*ind_w_label)  # unzipping original or raw indices of the shuffled labels
 data_1vs2_label = np.asarray(data_1vs2_label)
@@ -54,10 +50,6 @@ totscore = np.zeros((total_sample, 1), dtype=int)
 
 ntrain = int(np.round(total_sample * sample_trainfraction))  # number of samples to be used in the training set
 
-# Case_ind = np.asrray(np.nonzero(data_1vs2_label))
-# Case_ind = np.zeros([num_sam_data1, 1])
-# Control_ind = np.zeros([num_sam_data2, 1])
-
 Case_ind = []
 Control_ind = []
 for i, j in enumerate(data_1vs2_label):
@@ -65,7 +57,7 @@ for i, j in enumerate(data_1vs2_label):
         Case_ind.append(i)
     else:
         Control_ind.append(i)
-#
+        
 Peptrain_freq = np.zeros((total_seq, 1))  # keep track of indices of peptides that are being selected for training
 print('classifying two datasets from array using SVM')
 
@@ -77,7 +69,6 @@ for i in range(num_rep):
     ControlTrainindex = random.sample(Control_ind, int(np.round(ntrain / 2)))
     ControlTrainindex.sort()
     # Merge the indices of the train samples
-    # Trainindex = np.concatenate((CaseTrainindex, ControlTrainindex), axis=0)
     Trainindex = CaseTrainindex + ControlTrainindex
     Trainindex.sort()
     # Choose the sample data that will be used in the test set
@@ -141,8 +132,8 @@ for i in np.arange(minfinscore, maxfinscore, (maxfinscore - minfinscore) / 100):
 
 sensitivity = fraction_disease
 specificity = fraction_control
-Accuracy = sum((0.5*(sensitivity[1:]+sensitivity[0:-1])) * (specificity[1:]-specificity[0:-1]))
-AUC_str = str('AUC = ') + str(round(float(Accuracy), 3))
+AUC= sum((0.5*(sensitivity[1:]+sensitivity[0:-1])) * (specificity[1:]-specificity[0:-1]))
+AUC_str = str('AUC = ') + str(round(float(AUC), 3))
 # plot the ROC Curve
 fig1, ax = plt.subplots()
 ax.plot(fraction_control, fraction_disease, marker='o', color='b', label='Linear SVM')
@@ -159,6 +150,6 @@ plt.show()
 
 toc = time.time()
 
-print('Time to run the SVM =', toc-tic)
+print(f'Time to run the SVM is = {toc - tic} minutes')
 
 
