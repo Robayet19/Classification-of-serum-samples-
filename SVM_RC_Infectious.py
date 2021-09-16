@@ -12,11 +12,12 @@ tic = time.time()
 sample_trainfraction = 0.2  # percent of samples to be used in training the model
 pep_num = 5  # number of peptides in training set : default - 500
 num_rep = 1000  # number of iterations
-
+# include the files
 file1 = 'sequence_data_NIBIB_Dengue_ML_CTSSeraCare_noMed_CV317-Jul-2020-00-10.csv'
 file2 = 'sequence_data_NIBIB_Normal_ML_mod_CV315-Jul-2020-23-50.csv'
 
-# read the data and sequence for two cases, or a case and the control
+# read the data and sequence for two cases, or a case and the control. First column contains peptide sequences and the rest of the columns contain binding values 
+# between peptide sequences and serum Antibodies
 data_seq_1 = pd.read_csv(file1, header=None)
 sequence = data_seq_1.iloc[:, 1]
 total_seq = len(sequence)
